@@ -1,0 +1,638 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+<Script file="DevMaster.lua"/>
+
+<!-- Templates -->
+
+<CheckButton name="DevMasterButtonTemplate" inherits="ToggleButtonTemplate" virtual="True"/>	
+
+<Frame name="DevMaster_UI" parent="UIParent" frameStrata="BACKGROUND">
+	<Size><RelDimension x="1" y="1"/></Size>
+	<Anchors><Anchor point="CENTER" relativePoint="CENTER"/></Anchors>
+	<Scripts><OnLoad function="DevMaster_Init"/></Scripts>
+</Frame>
+
+<!-- Minimap -->
+<Button name="DevMaster_MinimapButton" parent="Minimap" enableMouse="true" movable="true" hidden="false">
+	<Size>
+		<AbsDimension x="33" y="33"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT"/>
+	</Anchors>
+	<Layers>
+		<Layer level="ARTWORK">
+			<Texture name="$parent_Icon" file="Interface\Icons\mail_gmicon">
+				<Size>
+					<AbsDimension x="21" y="21"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="7" y="-6"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Texture>
+		</Layer>
+		<Layer level="OVERLAY">
+			<Texture file="Interface\Minimap\MiniMap-TrackingBorder">
+				<Size>
+					<AbsDimension x="56" y="56"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+				</Anchors>
+			</Texture>
+		</Layer>
+	</Layers>
+	<Frames>
+		<Frame name="$parent_DraggingFrame" hidden="true">
+			<Scripts>
+				<OnUpdate>
+					DevMaster_MinimapButton_DraggingFrame_OnUpdate()
+				</OnUpdate>
+			</Scripts>
+		</Frame>
+		
+		<Frame name="DevMaster_MinimapButton_DropdownMenu" parent="DevMaster_MinimapButton" inherits="UIDropDownMenuTemplate" enableMouse="True" movable="false" hidden="true">
+			<Scripts>
+				<OnLeave>DevMaster_MinimapButton_DropdownMenu:Hide()</OnLeave>
+			</Scripts>
+		</Frame>
+	</Frames>
+	<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
+	<Scripts>
+		<OnLoad>
+			self:RegisterForClicks("LeftButtonUp","RightButtonUp")
+			self:RegisterForDrag("LeftButton","RightButton")
+		</OnLoad>
+		<OnDragStart>
+			self:LockHighlight()
+			DevMaster_MinimapButton_DraggingFrame:Show()
+		</OnDragStart>
+		<OnDragStop>	
+			self:UnlockHighlight()
+			DevMaster_MinimapButton_DraggingFrame:Hide()
+		</OnDragStop>
+		<OnClick>
+			DevMaster_MinimapButton_OnClick(button);
+		</OnClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+			GameTooltip:SetText("DevMaster")
+			GameTooltip:Show()
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide()
+		</OnLeave>
+	</Scripts>
+</Button>
+
+
+<!-- GM Panel with buttons -->
+<Frame name="GMPanel_Frame" parent="DevMaster_UI" hidden="false" frameStrata="MEDIUM" movable="true" enableMouse="true" clampedToScreen="true">	
+	<Size><RelDimension x="0.075" y="0.15"/></Size>
+	<Anchors><Anchor point="RIGHT" relativePoint="CENTER"/></Anchors>
+	<Frames>
+		<Frame parentKey="Border" inherits="DialogBorderTemplate"/>
+		<Frame parentKey="Header" inherits="DialogHeaderTemplate">
+			<KeyValues>
+				<KeyValue key="textString" value="GMPANEL_TITLE" type="global"/>
+			</KeyValues>
+		</Frame>
+		<CheckButton name="$parent_GMmode_Button" text="GM" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="17" y="-30"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleGMmode();</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Devmode_Button" text="Dev" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors>
+				<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-17" y="-30"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleDevmode()</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Flymode_Button" text="Fly" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="TOP" relativeTo="$parent_GMmode_Button" relativePoint="BOTTOM">
+				<Offset><RelDimension y="-0.005"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleFlight()</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Visiblemode_Button" text="Inv" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="TOP" relativeTo="$parent_Devmode_Button" relativePoint="BOTTOM">
+				<Offset><RelDimension y="-0.005"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleVisibility()</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_MorphMenu_Button" text="Morph" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension y="0.015"/></Size>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="$parent_Flymode_Button" relativePoint="BOTTOMLEFT">
+					<Offset><RelDimension y="-0.005"/></Offset>
+				</Anchor>
+				<Anchor point="TOPRIGHT" relativeTo="$parent_Visiblemode_Button" relativePoint="BOTTOMRIGHT">
+					<Offset><RelDimension y="-0.005"/></Offset>
+				</Anchor>
+			</Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleMorphFrame(self)</PostClick>
+			</Scripts>
+		</CheckButton>
+	</Frames>
+	<Scripts>
+		<OnLoad>
+			self:RegisterForDrag("LeftButton")
+			self:SetUserPlaced(1)
+		</OnLoad>
+		<OnDragStart>self:StartMoving()</OnDragStart>
+		<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
+	</Scripts>
+</Frame>
+<!--
+<Frame name="GMPanel_Frame" parent="DevMaster_UI" hidden="false" frameStrata="MEDIUM" movable="true" enableMouse="true" clampedToScreen="true">	
+	<Size><RelDimension x="0.075" y="0.15"/></Size>
+	<Anchors><Anchor point="RIGHT" relativePoint="CENTER"/></Anchors>
+	<Backdrop 
+		bgFile="Interface\DialogFrame\UI-DialogBox-Background" 
+		tile="true" 
+		edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+	>
+		<TileSize><AbsValue val="32"/></TileSize>
+		<EdgeSize><AbsValue val="32"/></EdgeSize>
+		<BackgroundInsets><AbsInset left="11" right="12" top="12" bottom="11"/></BackgroundInsets>
+	</Backdrop>
+	
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture name="GMPanel_Frame_TitleTexture" file="Interface\DialogFrame\UI-DialogBox-Header">
+				<Anchors>
+						<Anchor point="BOTTOM" relativePoint="TOP">
+						<Offset><AbsDimension y="-38"/></Offset>
+					</Anchor>
+					
+				</Anchors>
+			</Texture>
+			
+			<FontString inherits="GameFontNormal" text="GMPANEL_TITLE">
+				<Anchors>
+					<Anchor relativeTo="GMPanel_Frame_TitleTexture" point="TOP" relativePoint="TOP">
+						<Offset><AbsDimension y="-15"/></Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	
+	<Scripts>
+		<OnLoad>
+			self:RegisterForDrag("LeftButton")
+			self:SetUserPlaced(1)
+		</OnLoad>
+		<OnDragStart>self:StartMoving()</OnDragStart>
+		<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
+	</Scripts>
+	
+	<Frames>
+		<CheckButton name="$parent_GMmode_Button" text="GM" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="CENTER" relativePoint="TOP">
+				<Offset><RelDimension x="-0.015" y="-0.020"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleGMmode();</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Devmode_Button" text="Dev" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="CENTER" relativePoint="TOP">
+				<Offset><RelDimension x="0.015" y="-0.020"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleDevmode()</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Flymode_Button" text="Fly" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="TOP" relativeTo="$parent_GMmode_Button" relativePoint="BOTTOM">
+				<Offset><RelDimension y="-0.005"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleFlight()</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Visiblemode_Button" text="Inv" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="TOP" relativeTo="$parent_Devmode_Button" relativePoint="BOTTOM">
+				<Offset><RelDimension y="-0.005"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleVisibility()</PostClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_MorphMenu_Button" text="Morph" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension y="0.015"/></Size>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="$parent_Flymode_Button" relativePoint="BOTTOMLEFT">
+					<Offset><RelDimension y="-0.005"/></Offset>
+				</Anchor>
+				<Anchor point="TOPRIGHT" relativeTo="$parent_Visiblemode_Button" relativePoint="BOTTOMRIGHT">
+					<Offset><RelDimension y="-0.005"/></Offset>
+				</Anchor>
+			</Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<PostClick>DevMaster_toggleMorphFrame(self)</PostClick>
+			</Scripts>
+		</CheckButton>
+	</Frames>
+</Frame>
+-->
+
+<!-- Entity manipulation frame -->
+<Frame name="DevPanel_Frame" parent="DevMaster_UI" hidden="true" frameStrata="MEDIUM" movable="true" enableMouse="true" clampedToScreen="true">	
+	<Size><RelDimension x="0.075" y="0.15"/></Size>
+	<Anchors><Anchor point="TOP" relativePoint="CENTER"/></Anchors>
+	<Backdrop 
+		bgFile="Interface\DialogFrame\UI-DialogBox-Background" 
+		tile="true" 
+		edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+	>
+		<TileSize><AbsValue val="32"/></TileSize>
+		<EdgeSize><AbsValue val="32"/></EdgeSize>
+		<BackgroundInsets><AbsInset left="11" right="12" top="12" bottom="11"/></BackgroundInsets>
+	</Backdrop>
+	
+	<Layers>
+		<Layer level="BACKGROUND">
+			<Texture name="DevPanel_Frame_TitleTexture" file="Interface\DialogFrame\UI-DialogBox-Header">
+				<Size><RelDimension x="0.14"/></Size>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP">
+						<Offset><AbsDimension y="-38"/></Offset>
+					</Anchor>
+					
+				</Anchors>
+			</Texture>
+			
+			<FontString inherits="GameFontNormal" text="DEVPANEL_TITLE">
+				<Anchors>
+					<Anchor relativeTo="DevPanel_Frame_TitleTexture" point="TOP" relativePoint="TOP">
+						<Offset><AbsDimension y="-15"/></Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	
+	<Scripts>
+		<OnLoad>
+			self:RegisterForDrag("LeftButton")
+			self:SetUserPlaced(1)
+		</OnLoad>
+		<OnDragStart>self:StartMoving()</OnDragStart>
+		<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
+	</Scripts>
+	
+	<Frames>
+		<CheckButton name="$parent_GMmode_Button" text="GM" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="CENTER" relativePoint="TOP">
+				<Offset><RelDimension x="-0.015" y="-0.020"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<OnClick>DevMaster_setGMmode(on)</OnClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Devmode_Button" text="Dev" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="CENTER" relativePoint="TOP">
+				<Offset><RelDimension x="0.015" y="-0.020"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<OnClick>DevMaster_setDevmode(on)</OnClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Flymode_Button" text="Fly" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="TOP" relativeTo="$parent_GMmode_Button" relativePoint="BOTTOM">
+				<Offset><RelDimension y="-0.005"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<OnClick>DevMaster_setFlymode(on)</OnClick>
+			</Scripts>
+		</CheckButton>
+		
+		<CheckButton name="$parent_Visiblemode_Button" text="Inv" inherits="DevMasterButtonTemplate">
+			<Size><RelDimension x="0.025" y="0.015"/></Size>
+			<Anchors><Anchor point="TOP" relativeTo="$parent_Devmode_Button" relativePoint="BOTTOM">
+				<Offset><RelDimension y="-0.005"/></Offset>
+			</Anchor></Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<OnClick>DevMaster_setVisiblemode(on)</OnClick>
+			</Scripts>
+		</CheckButton>
+		
+		<Slider name="DevPanel_Slider" minValue="-8" maxValue="10" defaultValue="1" valueStep="1" inherits="OptionsSliderTemplate">
+			<Anchors>
+				<Anchor point="TOP" relativeTo="GMSpeed_Frame_Title" relativePoint="BOTTOM">
+					<Offset><AbsDimension x="6"/></Offset>
+				</Anchor>
+				<Anchor point="LEFT" relativePoint="LEFT">
+					<Offset><AbsDimension x="18"/></Offset>
+				</Anchor>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					self:SetWidth(GMSpeed_Frame:GetWidth()-36)
+					self:SetObeyStepOnDrag(true)
+					self:SetStepsPerPage(10)
+					getglobal(self:GetName().."Low"):SetText("0.1")
+					getglobal(self:GetName().."High"):SetText("10")
+				</OnLoad>
+				<OnValueChanged>
+					DevMaster_setSpeed(self:GetValue())
+				</OnValueChanged>
+			</Scripts>
+		</Slider>
+	</Frames>
+
+</Frame> 
+
+<!-- Movement speed frame -->
+<Frame name="GMSpeed_Frame" parent="DevMaster_UI" hidden="false" frameStrata="MEDIUM" movable="true" enableMouse="true" enableMouseWheel="true" clampedToScreen="true">	
+	<Size><RelDimension x="0.20" y="0.04"/></Size>
+	<Anchors><Anchor point="BOTTOMLEFT" relativePoint="CENTER"/></Anchors>
+	<Backdrop 
+		bgFile="Interface\DialogFrame\UI-DialogBox-Background" 
+		tile="true" 
+		edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+	>
+		<TileSize><AbsValue val="32"/></TileSize>
+		<EdgeSize><AbsValue val="32"/></EdgeSize>
+		<BackgroundInsets><AbsInset left="11" right="12" top="12" bottom="11"/></BackgroundInsets>
+	</Backdrop>
+	
+	<Layers>
+		<Layer level="ARTWORK">
+			<!--
+			<Texture name="GMPanelFrame_TitleTexture" file="Interface\DialogFrame\UI-DialogBox-Header">
+				<Size><RelDimension x="0.148"/></Size>
+				<Anchors>
+					<Anchor point="BOTTOM" relativePoint="TOP">
+						<Offset><AbsDimension y="-38"/></Offset>
+					</Anchor>
+				</Anchors>
+			</Texture>
+			-->
+			
+			<FontString name="$parent_Title" inherits="GameFontNormal" text="SPEEDSLIDER_TITLE">
+				<Anchors>
+					<Anchor point="TOP" relativePoint="TOP">
+						<Offset><AbsDimension y="-15"/></Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	
+	<Scripts>
+		<OnLoad>
+			self:RegisterForDrag("LeftButton")
+			self:SetUserPlaced(1)
+		</OnLoad>
+		<OnDragStart>self:StartMoving()</OnDragStart>
+		<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
+	</Scripts>
+	
+<!-- Movement speed slider -->
+	<Frames>
+		<Slider name="GMSpeed_Slider" minValue="-8" maxValue="10" defaultValue="1" valueStep="1" inherits="OptionsSliderTemplate">
+			<!-- <Size><RelDimension x="0.025" y="0.015"/></Size> -->
+			<Anchors>
+				<Anchor point="TOP" relativeTo="GMSpeed_Frame_Title" relativePoint="BOTTOM">
+					<Offset><AbsDimension x="6"/></Offset>
+				</Anchor>
+				<Anchor point="LEFT" relativePoint="LEFT">
+					<Offset><AbsDimension x="18"/></Offset>
+				</Anchor>
+				<!--
+				<Anchor point="RIGHT" relativePoint="RIGHT">
+					<Offset><AbsDimension x="-18"/></Offset>
+				</Anchor>
+				-->
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					self:SetWidth(GMSpeed_Frame:GetWidth()-36)
+					self:SetObeyStepOnDrag(true)
+					self:SetStepsPerPage(10)
+					getglobal(self:GetName().."Low"):SetText("0.1")
+					getglobal(self:GetName().."High"):SetText("10")
+				</OnLoad>
+				<OnValueChanged>
+					DevMaster_setSpeed(self:GetValue())
+					GameTooltip:SetText(DevMaster_sliderScaling(self,self:GetValue(),-100))
+				</OnValueChanged>
+				<OnEnter>
+					GameTooltip:SetOwner(GMSpeed_SliderThumb, "ANCHOR_BOTTOMLEFT", 10, 10)
+					GameTooltip:SetText(DevMaster_sliderScaling(self,self:GetValue(),-100))
+					GameTooltip:Show()
+				</OnEnter>
+				<OnLeave>
+					GameTooltip:Hide()
+				</OnLeave>
+			</Scripts>
+		</Slider>
+		
+		<Frame name="DevMaster_Speed_DropdownMenu" parent="GMSpeed_Frame" inherits="DropDownMenuTemplate" enableMouse="True" movable="false" hidden="false" level="BACKGROUND">
+			<Anchors>
+				<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+					<Offset><RelDimension x="-0.08" y="-0.01"/></Offset>
+				</Anchor>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					self:SetScale(0.65)
+					self.Button:SetScript("OnClick", DevMaster_Speed_DropdownMenuButton_OnClick);
+					SpeedDropdownCheck(self, 1, "all");
+				</OnLoad>
+				<OnLeave/>
+			</Scripts>
+		</Frame>
+	</Frames>
+	
+</Frame>
+
+<!-- Scale frame -->
+<Frame name="GMScale_Frame" parent="DevMaster_UI" hidden="false" frameStrata="MEDIUM" movable="true" enableMouse="true" enableMouseWheel="true" clampedToScreen="true">	
+	<Size><RelDimension x="0.20" y="0.04"/></Size>
+	<Anchors><Anchor point="TOPLEFT" relativePoint="CENTER"/></Anchors>
+	<Backdrop 
+		bgFile="Interface\DialogFrame\UI-DialogBox-Background" 
+		tile="true" 
+		edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+	>
+		<TileSize><AbsValue val="32"/></TileSize>
+		<EdgeSize><AbsValue val="32"/></EdgeSize>
+		<BackgroundInsets><AbsInset left="11" right="12" top="12" bottom="11"/></BackgroundInsets>
+	</Backdrop>
+	
+	<Layers>
+		<Layer level="ARTWORK">	
+			<FontString name="$parent_Title" inherits="GameFontNormal" text="SCALESLIDER_TITLE">
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="LEFT">
+						<Offset><AbsDimension x="18"/></Offset>
+					</Anchor>
+				</Anchors>
+			</FontString>
+		</Layer>
+	</Layers>
+	
+	<Scripts>
+		<OnLoad>
+			self:RegisterForDrag("LeftButton")
+			self:SetUserPlaced(1)
+		</OnLoad>
+		<OnDragStart>self:StartMoving()</OnDragStart>
+		<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
+	</Scripts>
+	
+	<Frames>
+		<Slider name="GMScale_Slider" minValue="-8" maxValue="10" defaultValue="1" valueStep="1" inherits="OptionsSliderTemplate">
+			<!-- <Size><RelDimension x="0.025" y="0.015"/></Size> -->
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="GMScale_Frame_Title" relativePoint="RIGHT">
+					<Offset><AbsDimension x="6"/></Offset>
+				</Anchor>
+				<Anchor point="RIGHT" relativePoint="RIGHT"><Offset><AbsDimension x="-18"/></Offset></Anchor>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					<!-- self:SetMinMaxValues(log10(0.1),log10(10)) -->
+					self:SetObeyStepOnDrag(true)
+					getglobal(self:GetName().."Low"):SetText("0.1")
+					getglobal(self:GetName().."High"):SetText("10")
+					<!-- getglobal(self:GetName().."Text"):SetText("1") -->
+				</OnLoad>
+				<OnMouseDown>GMSpeed_Slider:Enable()</OnMouseDown>
+				<OnValueChanged>
+					DevMaster_setScale(self:GetValue())
+					GameTooltip:SetText(DevMaster_sliderScaling(self,self:GetValue(),-100))
+				</OnValueChanged>
+				
+				<OnEnter>
+					GameTooltip:SetOwner(GMScale_SliderThumb, "ANCHOR_BOTTOMLEFT", 10, 10)
+					GameTooltip:SetText(DevMaster_sliderScaling(self,self:GetValue(),-100))
+					GameTooltip:Show()
+				</OnEnter>
+				<OnLeave>
+					GameTooltip:Hide()
+				</OnLeave>
+			</Scripts>
+		</Slider>
+	</Frames>
+	
+</Frame>
+
+<!-- Morph box -->
+<EditBox name="MorphSearchBoxTemplate" inherits="SearchBoxTemplate" letters="40" virtual="True">
+	<Size x="145" y="20"/>
+	<Anchors>
+		<Anchor point="TOP" relativeKey="$parent.TopInset" x="0" y="-5"/>
+	</Anchors>
+	<Layers>
+		<Layer level="ARTWORK">
+			<FontString parentKey="Instructions"/>
+		</Layer>
+	</Layers>
+	
+	<Frames>
+		<CheckButton name="DevMaster_Morph_Button" inherits="DevMasterButtonTemplate" text="Morph">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="-5" y="-5"/>
+				<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" y="-5"/>
+			</Anchors>
+			<Scripts>
+				<OnLoad>self:RegisterForClicks("LeftButtonUp");</OnLoad>
+				<OnClick>
+					if ( self:IsEnabled() ) then
+						if (self:GetChecked() and NonZero(DevMaster_MorphSearchBox:GetText())) then
+							self.Left:SetTexture("Interface\\Buttons\\UI-Panel-Button-Down");
+							self.Middle:SetTexture("Interface\\Buttons\\UI-Panel-Button-Down");
+							self.Right:SetTexture("Interface\\Buttons\\UI-Panel-Button-Down");
+						else
+							self.Left:SetTexture("Interface\\Buttons\\UI-Panel-Button-Up");
+							self.Middle:SetTexture("Interface\\Buttons\\UI-Panel-Button-Up");
+							self.Right:SetTexture("Interface\\Buttons\\UI-Panel-Button-Up");
+						end		
+					end
+				</OnClick>
+				<PostClick>DevMaster_toggleMorph(self)</PostClick>
+			</Scripts>
+		</CheckButton>
+	</Frames>
+	
+	<Scripts>
+		<OnTextChanged>
+			if (NonZero(self:GetText())) then 
+				QuestNPCModel:SetDisplayInfo(self:GetText(), 0) 
+			else 
+				QuestNPCModel:SetUnit("player")
+			end 
+		</OnTextChanged>
+		<OnLeave>self:ClearFocus()</OnLeave>
+		<OnHide/>
+	</Scripts>
+</EditBox>	
+
+<!--
+<Button name="TestSecureButton" inherits="SecureActionButtonTemplate" parent="DevMaster_UI">
+  <Attributes>
+   <Attribute name="type" type="string" value="macro"/>
+   <Attribute name="macrotext" type="string" value="/target player"/>
+  </Attributes>
+  <Size x="64" y="64"/>
+  <Layers><Layer level="OVERLAY">
+    <Texture name="$parentIcon" file="Interface\Icons\Spell_Nature_Thorns" setAllPoints="true" />
+  </Layer></Layers>
+  <Anchors><Anchor point="CENTER" /></Anchors>
+ </Button>
+ -->
+</Ui>

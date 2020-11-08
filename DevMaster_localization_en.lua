@@ -1,0 +1,6 @@
+ADDON = "DevMaster"
+GMPANEL_TITLE = "GM Panel"
+DEVPANEL_TITLE = "Developer Panel"
+SPEEDSLIDER_TITLE = "Movement Speed"
+SCALESLIDER_TITLE = "Scale"
+TAB_ACCOUNTS = "Accounts"

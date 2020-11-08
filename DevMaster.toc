@@ -1,0 +1,16 @@
+## Interface: 80100
+## Title: DevMaster
+## Notes: WoW GM and Developer tools
+## DefaultState: Enabled
+## Secure: 1
+## SavedVariables: MinimapPos
+## SavedVariablesPerCharacter: GMmode, Devmode, Visible, Flight
+## Author: Смердокрыл
+## X-Website: www.model-changing.net
+
+libs\ToggleButtonTemplate.xml
+libs\ToggleButtonTemplate.lua
+
+DevMaster_localization_en.lua
+DevMaster.lua
+DevMaster.xml

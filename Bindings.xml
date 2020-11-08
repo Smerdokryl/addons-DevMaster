@@ -1,0 +1,9 @@
+<Bindings>
+	<Binding name="SeaCraft (Hold) Sprint Mode" description="Hold to Sprint" header="SeaCraft Sprint Mode" category="SeaCraft Sprint Mode" runOnUp="false">
+		if keystate == "down" then
+  			ToggleRun()
+		elseif keystate == "up" then
+			ToggleRun()
+		end
+	</Binding>
+</Bindings>
