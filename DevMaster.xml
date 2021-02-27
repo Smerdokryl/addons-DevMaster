@@ -279,13 +279,14 @@
 -->
 
 <!-- Entity manipulation frame -->
+<!--
 <Frame name="DevPanel_Frame" parent="DevMaster_UI" hidden="true" frameStrata="MEDIUM" movable="true" enableMouse="true" clampedToScreen="true">	
 	<Size><RelDimension x="0.075" y="0.15"/></Size>
 	<Anchors><Anchor point="TOP" relativePoint="CENTER"/></Anchors>
 	<Backdrop 
-		bgFile="Interface\DialogFrame\UI-DialogBox-Background" 
+		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background" 
 		tile="true" 
-		edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+		edgeFile="Interface\\DialogFrame\\UI-DialogBox-Border"
 	>
 		<TileSize><AbsValue val="32"/></TileSize>
 		<EdgeSize><AbsValue val="32"/></EdgeSize>
@@ -392,16 +393,16 @@
 		</Slider>
 	</Frames>
 
-</Frame> 
+</Frame> -->
 
 <!-- Movement speed frame -->
 <Frame name="GMSpeed_Frame" parent="DevMaster_UI" hidden="false" frameStrata="MEDIUM" movable="true" enableMouse="true" enableMouseWheel="true" clampedToScreen="true">	
 	<Size><RelDimension x="0.20" y="0.04"/></Size>
 	<Anchors><Anchor point="BOTTOMLEFT" relativePoint="CENTER"/></Anchors>
 	<Backdrop 
-		bgFile="Interface\DialogFrame\UI-DialogBox-Background" 
+		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background" 
 		tile="true" 
-		edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+		edgeFile="Interface\\DialogFrame\\UI-DialogBox-Border"
 	>
 		<TileSize><AbsValue val="32"/></TileSize>
 		<EdgeSize><AbsValue val="32"/></EdgeSize>
@@ -480,7 +481,7 @@
 			</Scripts>
 		</Slider>
 		
-		<Frame name="DevMaster_Speed_DropdownMenu" parent="GMSpeed_Frame" inherits="DropDownMenuTemplate" enableMouse="True" movable="false" hidden="false" level="BACKGROUND">
+		<Frame name="DevMaster_Speed_DropdownMenu" parent="GMSpeed_Frame" inherits="UIDropDownMenuTemplate" enableMouse="True" movable="false" hidden="false" level="BACKGROUND">
 			<Anchors>
 				<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
 					<Offset><RelDimension x="-0.08" y="-0.01"/></Offset>
