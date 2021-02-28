@@ -440,10 +440,13 @@
 <!-- Movement speed slider -->
 	<Frames>
 		<Frame parentKey="Border" inherits="DialogBorderTemplate"/>
+		<Frame parentKey="Header" inherits="DialogHeaderTemplate">
+			<KeyValues><KeyValue key="textString" value="SPEEDSLIDER_TITLE" type="global"/></KeyValues>
+		</Frame>
 		<Slider name="GMSpeed_Slider" minValue="-8" maxValue="10" defaultValue="1" valueStep="1" inherits="OptionsSliderTemplate">
 			<!-- <Size><RelDimension x="0.025" y="0.015"/></Size> -->
 			<Anchors>
-				<Anchor point="TOP" relativeTo="GMSpeed_Frame_Title" relativePoint="BOTTOM">
+				<Anchor point="TOP" relativeKey="$parent.Header" relativePoint="BOTTOM">
 					<Offset><AbsDimension x="6"/></Offset>
 				</Anchor>
 				<Anchor point="LEFT" relativePoint="LEFT">
