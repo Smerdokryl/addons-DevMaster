@@ -1,0 +1,93 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<Script file="SliderMixins.lua"/>
+
+	<Slider name="SkewedSliderTemplate" virtual="true" minValue="-8" maxValue="10" defaultValue="1" valueStep="1" inherits="OptionsSliderTemplate">
+		<KeyValues><KeyValue key="eval" value="function() return end" type="global"/></KeyValues>
+		<Anchors>
+			<Anchor point="TOP" relativeKey="$parent.Header" relativePoint="BOTTOM">
+				<Offset><AbsDimension x="6"/></Offset>
+			</Anchor>
+			<Anchor point="LEFT" relativePoint="LEFT">
+				<Offset><AbsDimension x="18"/></Offset>
+			</Anchor>
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self:SetObeyStepOnDrag(true)
+				getglobal(self:GetName().."Low"):SetText("0.1")
+				getglobal(self:GetName().."High"):SetText("10")
+			</OnLoad>
+			<OnValueChanged>
+				eval(value)
+				GameTooltip:SetText(SkewedSliderVal(self,value))
+			</OnValueChanged>
+			<OnEnter>
+				GameTooltip:SetOwner(GMSpeed_SliderThumb, "ANCHOR_BOTTOMLEFT", 10, 10)
+				GameTooltip:SetText(SkewedSliderVal(self))
+				GameTooltip:Show()
+			</OnEnter>
+			<OnLeave>GameTooltip:Hide()</OnLeave>
+		</Scripts>
+	</Slider>
+
+	<Slider name="ExtendingSliderTemplate" virtual="true" inherits="SkewedSliderTemplate">
+		<Scripts>
+			<OnLoad>
+				self:SetWidth(GMSpeed_Frame:GetWidth()-36)
+				self:SetStepsPerPage(10)
+			</OnLoad>
+		</Scripts>
+	</Slider>
+
+	<Frame 	name="SkewedSliderFrameTemplate" virtual="true" enableMouse="true" movable="true" clampedToScreen="true">	
+		<KeyValues>
+			<KeyValue key="title_text" 		value="TITLE" 					type="global"/>
+			<KeyValue key="_eval" 			value="function() return end" 	type="global"/>
+			<KeyValue key="slider_template" value="SkewedSliderTemplate" 	type="global"/>
+		</KeyValues>
+		<Size><RelDimension x="0.20" y="0.04"/></Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parent_Title" inherits="GameFontNormal" text="title_text">
+					<Anchors>
+						<Anchor point="TOP" relativePoint="TOP">
+							<Offset><AbsDimension y="-15"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		
+		<Frames>
+			<Frame 	parentKey="Border" inherits="DialogBorderTemplate"/>
+			<Slider parentKey="Slider" inherits=slider_template eval=_eval/>
+			
+			<Frame parentKey="Dropdown" inherits="UIDropDownMenuTemplate" enableMouse="True" movable="false">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
+						<Offset><RelDimension x="-0.08" y="-0.01"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetScale(0.65)
+						self.Button:SetScript("OnClick", DevMaster_Speed_DropdownMenuButton_OnClick);
+						SpeedDropdownCheck(self, 1, "all");
+					</OnLoad>
+					<OnLeave/>
+				</Scripts>
+			</Frame>
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				self:RegisterForDrag("LeftButton")
+				self:SetUserPlaced(1)
+			</OnLoad>
+			<OnDragStart>self:StartMoving()</OnDragStart>
+			<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
+		</Scripts>
+	</Frame>
+
+</Ui>

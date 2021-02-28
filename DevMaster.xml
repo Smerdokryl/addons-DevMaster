@@ -501,77 +501,16 @@
 </Frame>
 
 <!-- Scale frame -->
-<Frame name="GMScale_Frame" parent="DevMaster_UI" hidden="false" frameStrata="MEDIUM" movable="true" enableMouse="true" enableMouseWheel="true" clampedToScreen="true">	
-	<Size><RelDimension x="0.20" y="0.04"/></Size>
-	<Anchors><Anchor point="TOPLEFT" relativePoint="CENTER"/></Anchors>
-	<!--<Backdrop 
-		bgFile="Interface\DialogFrame\UI-DialogBox-Background" 
-		tile="true" 
-		edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
-	>
-		<TileSize><AbsValue val="32"/></TileSize>
-		<EdgeSize><AbsValue val="32"/></EdgeSize>
-		<BackgroundInsets><AbsInset left="11" right="12" top="12" bottom="11"/></BackgroundInsets>
-	</Backdrop>
-	
-	<Layers>
-		<Layer level="ARTWORK">	
-			<FontString name="$parent_Title" inherits="GameFontNormal" text="SCALESLIDER_TITLE">
-				<Anchors>
-					<Anchor point="LEFT" relativePoint="LEFT">
-						<Offset><AbsDimension x="18"/></Offset>
-					</Anchor>
-				</Anchors>
-			</FontString>
-		</Layer>
-	</Layers>-->
-	
-	<Scripts>
-		<OnLoad>
-			self:RegisterForDrag("LeftButton")
-			self:SetUserPlaced(1)
-		</OnLoad>
-		<OnDragStart>self:StartMoving()</OnDragStart>
-		<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
-	</Scripts>
-	
-	<Frames>
-		<Frame parentKey="Border" inherits="DialogBorderTemplate"/>
-		<Slider name="GMScale_Slider" minValue="-8" maxValue="10" defaultValue="1" valueStep="1" inherits="OptionsSliderTemplate">
-			<!-- <Size><RelDimension x="0.025" y="0.015"/></Size> -->
-			<Anchors>
-				<Anchor point="LEFT" relativeTo="GMScale_Frame_Title" relativePoint="RIGHT">
-					<Offset><AbsDimension x="6"/></Offset>
-				</Anchor>
-				<Anchor point="RIGHT" relativePoint="RIGHT"><Offset><AbsDimension x="-18"/></Offset></Anchor>
-			</Anchors>
-			<Scripts>
-				<OnLoad>
-					<!-- self:SetMinMaxValues(log10(0.1),log10(10)) -->
-					self:SetObeyStepOnDrag(true)
-					getglobal(self:GetName().."Low"):SetText("0.1")
-					getglobal(self:GetName().."High"):SetText("10")
-					<!-- getglobal(self:GetName().."Text"):SetText("1") -->
-				</OnLoad>
-				<OnMouseDown>GMSpeed_Slider:Enable()</OnMouseDown>
-				<OnValueChanged>
-					DevMaster_setScale(self:GetValue())
-					GameTooltip:SetText(DevMaster_sliderScaling(self,self:GetValue(),-100))
-				</OnValueChanged>
-				
-				<OnEnter>
-					GameTooltip:SetOwner(GMScale_SliderThumb, "ANCHOR_BOTTOMLEFT", 10, 10)
-					GameTooltip:SetText(DevMaster_sliderScaling(self,self:GetValue(),-100))
-					GameTooltip:Show()
-				</OnEnter>
-				<OnLeave>
-					GameTooltip:Hide()
-				</OnLeave>
-			</Scripts>
-		</Slider>
-	</Frames>
-	
-</Frame>
+<Frame 
+	name="GMScale_Frame" 
+	inherits="SkewedSliderFrameTemplate"
+	parent="DevMaster_UI" 
+	hidden="false" 
+	frameStrata="MEDIUM" 
+	title_text="SCALESLIDER_TITLE"
+	_eval=DevMaster_setScale 
+	slider_template="SkewedSliderTemplate"
+/>
 
 <!-- Morph box -->
 <EditBox name="MorphSearchBoxTemplate" inherits="SearchBoxTemplate" letters="40" virtual="True">
