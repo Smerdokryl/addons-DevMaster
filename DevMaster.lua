@@ -15,40 +15,41 @@ end
 ]]--
 
 
---Global variables for easy use
-on = "on"
-off = "off"
+--Variables for easy use
+local on = "on"
+local off = "off"
+local DevMaster_frames = {'GMPanel_Frame', 'DevPanel_Frame', 'GMSpeed_Frame', 'GMScale_Frame'}
 
---Global functions for easy use
-function ToggleFrame(frame)
+--Functions for easy use
+local function ToggleFrame(frame)
 	if (frame:IsShown()) then
 		frame:Hide();
+		return false;
 	else
 		frame:Show();
+		return true;
 	end
 end
 
-function FrameDropdownCheck(self, frame)
+local function MapDropdownCheck(self, n)
 	--print(self);
 	--print(frame);
-	if 		frame == 1 then frame = GMPanel_Frame
-	elseif 	frame == 2 then frame = DevPanel_Frame
-	elseif 	frame == 3 then frame = GMSpeed_Frame
-	elseif 	frame == 4 then frame = GMScale_Frame
-	elseif	frame == 5 then 
+	if n <= table.getn(DevMaster_frames) then 
+		DevMaster_FramesMenu[n].checked = ToggleFrame(DevMaster_frames[n])
+	elseif	n == 5 then 
 		TargetSelf = not TargetSelf;
+		DevMaster_FramesMenu[5].checked = TargetSelf;
 	end
-	ToggleFrame(frame);
 end
 
-function SpeedDropdownCheck(self, id, typ)
+local function SpeedDropdownCheck(self, id, typ)
 	speedType=typ
 	for i=1,5,1 do DevMaster_SpeedMenu[i].checked = false end
 	DevMaster_SpeedMenu[id].checked=true
 	DevMaster_Speed_DropdownMenuText:SetText(typ)
 end
 
-function ChangeMode(button, mode)
+local function ChangeMode(button, mode)
 	if (button:GetChecked()) then
 		return on;
 	else
@@ -56,7 +57,7 @@ function ChangeMode(button, mode)
 	end
 end
 
-function NonZero(value)
+local function NonZero(value)
 	if (tonumber(value) ~= nil) then 
 		if (tonumber(value) > 0) then
 			return true
@@ -68,7 +69,7 @@ function NonZero(value)
 	end
 end
 
-function ChatCommand(text, param)
+local function ChatCommand(text, param)
 	if TargetSelf then SendChatMessage("/target player", "GUILD") end
 
 	if param then 
@@ -80,14 +81,25 @@ function ChatCommand(text, param)
 	if TargetSelf then SendChatMessage("/targetlasttarget", "GUILD") end
 end
 
+local function InitMenu(menu, settings)
+	for n, item  in pairs(menu) 	do
+		for key, val in pairs(settings) do
+			if item[key] == nil then
+				item[key] = {val, n}[val=='n'];
+			end
+		end
+	end
+	return menu;
+end
+
 -- Initialisation
-GMmode=off;
-Devmode=off;
-Flight=off;
-Visible=on;
-MorphFrame=off;
-speedType="all";
-TargetSelf=true;
+local GMmode=off;
+local Devmode=off;
+local Flight=off;
+local Visible=on;
+local MorphFrame=off;
+local speedType="all";
+local TargetSelf=true;
 
 -- Minimap button handling
 
@@ -114,21 +126,27 @@ function DevMaster_MinimapButton_DraggingFrame_OnUpdate() -- Ignore
 	DevMaster_MinimapButton_Reposition(); -- move the button
 end
 
-DevMaster_FramesMenu = {
-		{text="GM panel", 			checked=true, func=FrameDropdownCheck, arg1=1,	isNotRadio=true, notCheckable=false, keepShownOnClick=true},
-		{text="Developer panel", 	checked=false, func=FrameDropdownCheck, arg1=2,	disabled=true, isNotRadio=true, notCheckable=false, keepShownOnClick=true},
-		{text="Speed slider", 		checked=true, func=FrameDropdownCheck, arg1=3,	isNotRadio=true, notCheckable=false, keepShownOnClick=true},
-		{text="Scale slider", 		checked=true, func=FrameDropdownCheck, arg1=4,	isNotRadio=true, notCheckable=false, keepShownOnClick=true},
-		{text="Auto-target self",	checked=true, func=FrameDropdownCheck, arg1=5,	isNotRadio=true, notCheckable=false, keepShownOnClick=true}
-	}
+local DevMaster_FramesMenu = InitMenu(
+	{
+		{text="GM panel"},
+		{text="Developer panel", checked=false, disabled=true},
+		{text="Speed slider"},
+		{text="Scale slider"},
+		{text="Auto-target self"}
+	}, 
+	{checked=true, func=MapDropdownCheck, arg1='n', isNotRadio=true, notCheckable=false, keepShownOnClick=true}
+);
 
-DevMaster_SpeedMenu = {
-		{text="All", 		checked=true,	func=SpeedDropdownCheck, arg1=1, arg2="all", 		notCheckable=false, keepShownOnClick=false},
-		{text="Fly", 		checked=false, 	func=SpeedDropdownCheck, arg1=2, arg2="fly", 		notCheckable=false, keepShownOnClick=false},
-		{text="Swim", 		checked=false, 	func=SpeedDropdownCheck, arg1=3, arg2="swim", 		notCheckable=false, keepShownOnClick=false},
-		{text="Walk", 		checked=false, 	func=SpeedDropdownCheck, arg1=4, arg2="walk", 		notCheckable=false, keepShownOnClick=false},
-		{text="Backwalk", 	checked=false, 	func=SpeedDropdownCheck, arg1=5, arg2="backwalk",	notCheckable=false, keepShownOnClick=false}
-	}
+local DevMaster_SpeedMenu = InitMenu(
+	{
+		{text="All", 		arg2="all", checked=true},
+		{text="Fly", 		arg2="fly"},
+		{text="Swim", 		arg2="swim"},
+		{text="Walk", 		arg2="walk"},
+		{text="Backwalk", 	arg2="backwalk"}
+	},
+	{checked=false, func=SpeedDropdownCheck, arg1='n', notCheckable=false, keepShownOnClick=false}
+);
 
 -- Put your code that you want on a minimap button click here.  arg1="LeftButton", "RightButton", etc
 function DevMaster_MinimapButton_OnClick(button)
