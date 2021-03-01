@@ -503,13 +503,13 @@
 <!-- Scale frame -->
 <Frame 
 	name="GMScale_Frame" 
-	inherits="SkewedSliderFrameTemplate"
+	inherits="SkewedSliderFrameTemplate" 
 	parent="DevMaster_UI" 
 	hidden="false" 
 	frameStrata="MEDIUM" 
-	title_text="SCALESLIDER_TITLE"
-	_eval=DevMaster_setScale 
-	slider_template="SkewedSliderTemplate"
+	title_text="SCALESLIDER_TITLE" 
+	eval="DevMaster_setScale" 
+	extendable="false"
 />
 
 <!-- Morph box -->

@@ -1,9 +1,9 @@
 SliderMixin = {};
 
 function SkewedSliderVal(slider, val)
-    val = val or slider:GetValue();
+	if val==nil then val=slider:GetValue() end
     if val <= 0 then
-        val = 0.9 + (cur/10);
+        val = 0.9 + (val/10);
     end
     return val;
 end
