@@ -1,5 +1,3 @@
-SliderMixin = {};
-
 function SkewedSliderVal(slider, val)
 	if val==nil then val=slider:GetValue() end
     if val <= 0 then

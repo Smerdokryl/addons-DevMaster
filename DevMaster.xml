@@ -501,16 +501,13 @@
 </Frame>
 
 <!-- Scale frame -->
-<Frame 
-	name="GMScale_Frame" 
-	inherits="SkewedSliderFrameTemplate" 
-	parent="DevMaster_UI" 
-	hidden="false" 
-	frameStrata="MEDIUM" 
-	title_text="SCALESLIDER_TITLE" 
-	eval="DevMaster_setScale" 
-	extendable="false"
-/>
+<Frame name="GMScale_Frame" inherits="SkewedSliderFrameTemplate" parent="DevMaster_UI" hidden="false" frameStrata="MEDIUM">
+	<KeyValues>
+		<KeyValue key="titleText" 	value="SCALESLIDER_TITLE" 	type="global"/>
+		<KeyValue key="extendable" 	value="false" 				type="boolean"/>
+		<KeyValue key="eval" 		value="DevMaster_setScale" 	type="global"/>
+	</KeyValues>
+</Frame>
 
 <!-- Morph box -->
 <EditBox name="MorphSearchBoxTemplate" inherits="SearchBoxTemplate" letters="40" virtual="True">
