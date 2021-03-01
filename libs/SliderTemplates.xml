@@ -2,50 +2,52 @@
 
 	<Script file="SliderTemplates.lua"/>
 
-	<Slider name="SkewedSliderTemplate" virtual="true" minValue="-8" maxValue="10" defaultValue="1" valueStep="1" inherits="OptionsSliderTemplate">
+	<Slider name="SkewedSliderTemplate" virtual="true" obeyStepOnDrag="true" valueStep="1" minValue="-8" maxValue="10" defaultValue="1" stepsPerPage="10" inherits="OptionsSliderTemplate">
 		<KeyValues>
 			<KeyValue key="parentName" 	value=""		type="string"/>
+			<KeyValue key="elems"		value=""		type="global"/>
 			<KeyValue key="extendable" 	value="false" 	type="boolean"/>
 			<KeyValue key="val" 		value="print" 	type="global"/>
 			<KeyValue key="eval" 		value="print" 	type="global"/>
 		</KeyValues>
 		<Anchors>
-			<Anchor point="TOP" relativeKey="$parent.Header" relativePoint="BOTTOM">
-				<Offset><AbsDimension x="6"/></Offset>
-			</Anchor>
-			<Anchor point="LEFT" relativePoint="LEFT">
-				<Offset><AbsDimension x="18"/></Offset>
-			</Anchor>
+			<Anchor point="TOP" 	relativeKey="$parent.Title" 			relativePoint="BOTTOM"/>
+			<Anchor point="LEFT" 	relativeKey="$parent.Border.LeftEdge" 	relativePoint="RIGHT"/>
+			<Anchor point="CENTER"	relativeKey="$parent.Bg"				relativePoint="CENTER"/>
+			<Anchor point="RIGHT" 	relativeKey="$parent.Border.RightEdge" 	relativePoint="LEFT"/>
 		</Anchors>
 		<Scripts>
 			<OnLoad>
-				self.parentName 	= self:GetParent():GetName()
+				self.parentName = self:GetParent():GetName();
+				self.elems 	= {
+					Low   = getglobal(self.parentName.."Low"),
+					High  = getglobal(self.parentName.."High"),
+					Thumb = getglobal(self.parentName.."Thumb")
+				};
 				self.val = function(val)
-					if val == nil then val = self:GetValue() end
-					if val <= 0   then val = 0.9 + (val/10)  end
-					return val
+					if (val == nil)  then val = self:GetValue(); end
+					if (val &lt;= 0) then val = 0.9 + (val/10);	 end
+					return val or 0;
 				end
 
 				if self.extendable then
-					self:SetWidth(self.parentName:GetWidth()-36)
-					self:SetStepsPerPage(10)
+					self:SetWidth(self.parentName:GetWidth()-36);
+					self:SetStepsPerPage(10);
 				end
 
-				getglobal(self.parentName.."Low"):SetText("0.1")
-				getglobal(self.parentName.."High"):SetText("10")
-
-				self:SetObeyStepOnDrag(true)
+				self.elems["Low"]:SetText("0.1");
+				self.elems["High"]:SetText("10");
 			</OnLoad>
 			<OnValueChanged>
-				self.eval(value)
-				GameTooltip:SetText(self.val(value))
+				self.eval(value);
+				GameTooltip:SetText(self.val(value) or '');
 			</OnValueChanged>
 			<OnEnter>
-				GameTooltip:SetOwner(getglobal(self.parentName.."Thumb"), "ANCHOR_BOTTOMLEFT", 10, 10)
-				GameTooltip:SetText(self.val())
-				GameTooltip:Show()
+				GameTooltip:SetOwner(self.elems["Thumb"], "ANCHOR_BOTTOMLEFT", 10, 10);
+				GameTooltip:SetText(self.val() or '');
+				GameTooltip:Show();
 			</OnEnter>
-			<OnLeave>GameTooltip:Hide()</OnLeave>
+			<OnLeave>GameTooltip:Hide();</OnLeave>
 		</Scripts>
 	</Slider>
 
@@ -70,8 +72,8 @@
 		</Layers>
 
 		<Frames>
-			<Frame 	parentKey="Border" inherits="DialogBorderTemplate"/>
-			<Slider parentKey="Slider" inherits="SkewedSliderTemplate"/>
+			<Frame 	parentKey="Border" 	 inherits="DialogBorderTemplate"/>
+			<Slider parentKey="Slider" 	 inherits="SkewedSliderTemplate" obeyStepOnDrag="true" valueStep="1"/>
 			<Frame 	parentKey="Dropdown" inherits="UIDropDownMenuTemplate" enableMouse="True" movable="false">
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
@@ -80,7 +82,7 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						self:SetScale(0.65)
+						self:SetScale(0.65);
 						self.Button:SetScript("OnClick", DevMaster_Speed_DropdownMenuButton_OnClick);
 						SpeedDropdownCheck(self, 1, "all");
 					</OnLoad>
@@ -91,15 +93,15 @@
 
 		<Scripts>
 			<OnLoad>
-				self:RegisterForDrag("LeftButton")
-				self:SetUserPlaced(1)
+				self:RegisterForDrag("LeftButton");
+				self:SetUserPlaced(1);
 
-				self.Title:SetText(self.titleText)
-				self.Slider.extendable = self.extendable
-				self.Slider.eval = self.eval
+				self.Title:SetText(self.titleText);
+				self.Slider.extendable = self.extendable;
+				self.Slider.eval = self.eval;
 			</OnLoad>
-			<OnDragStart>self:StartMoving()</OnDragStart>
-			<OnDragStop>self:StopMovingOrSizing()</OnDragStop>
+			<OnDragStart>self:StartMoving();</OnDragStart>
+			<OnDragStop>self:StopMovingOrSizing();</OnDragStop>
 		</Scripts>
 	</Frame>
 </Ui>
